@@ -1,42 +1,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/appWidgetBackgroundColor"
     android:padding="@dimen/widget_margin"
     android:theme="@style/ThemeOverlay.SunriseSunset.AppWidgetContainer">
 
     <ImageView
         android:id="@+id/clock_widget_background"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:elevation="0dp" />
 
-    <TextView
-        android:id="@+id/clock_widget_time_marker"
+    <TextClock
+        android:id="@+id/clock_widget_clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="O"
-        android:textColor="?attr/appWidgetTextColor"
-        android:textSize="24sp"
-        android:textStyle="bold|italic"
-        android:paddingLeft="300dp"
-        android:paddingTop="0dp"
-        android:paddingRight="0dp"
-        android:paddingBottom="0dp" />
-
-    <Chronometer
-        android:id="@+id/clock_widget_chronometer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/appwidget_text"
-        android:textColor="?attr/appWidgetTextColor"
-        android:textSize="24sp"
-        android:textStyle="bold|italic"
-        android:countDown="false" />
+        android:textColor="@color/white"
+        android:textSize="40sp"
+        android:format24Hour="k:mm:ss"
+        android:format12Hour="k:mm:ss" />
 </RelativeLayout>

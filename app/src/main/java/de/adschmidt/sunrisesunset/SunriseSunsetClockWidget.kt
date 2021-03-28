@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.graphics.*
 import android.location.Location
+import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.widget.RemoteViews
@@ -14,6 +15,7 @@ import net.time4j.PlainDate
 import net.time4j.TemporalType
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.sin
 
 /**
@@ -22,6 +24,7 @@ import kotlin.math.sin
  */
 class SunriseSunsetClockWidget : AppWidgetProvider() {
     private val timeCalculator = TimeCalculator()
+    private val widgetSizeProvider = WidgetSizeProvider()
 
     override fun onUpdate(
         context: Context,
@@ -30,6 +33,12 @@ class SunriseSunsetClockWidget : AppWidgetProvider() {
     ) {
         // There may be multiple widgets active, so update all of them
         for (appWidgetId in appWidgetIds) {
+            if (widgetSizeProvider.getSize(appWidgetId) == null) {
+                widgetSizeProvider.updateOnResize(
+                    appWidgetId,
+                    appWidgetManager.getAppWidgetOptions(appWidgetId)
+                )
+            }
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
     }
@@ -49,21 +58,42 @@ class SunriseSunsetClockWidget : AppWidgetProvider() {
         // Enter relevant functionality for when the last widget is disabled
     }
 
+    override fun onAppWidgetOptionsChanged(
+        context: Context?,
+        appWidgetManager: AppWidgetManager?,
+        appWidgetId: Int,
+        newOptions: Bundle?
+    ) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        widgetSizeProvider.updateOnResize(appWidgetId, newOptions)
+        onUpdate(context!!, appWidgetManager!!, intArrayOf(appWidgetId))
+    }
+
     internal fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ) {
-        val widgetText = loadTitlePref(context, appWidgetId) + appWidgetId
+
         // Construct the RemoteViews object
         val views = RemoteViews(context.packageName, R.layout.sunrise_sunset_clock_widget)
-        views.setTextViewText(R.id.appwidget_text, widgetText)
+
+        // init size values
+        val size = widgetSizeProvider.getSize(appWidgetId)
+        if (size == null) {
+            Log.e(TAG, "widgetSize for widget $appWidgetId was not initialized")
+            return
+        }
+        val width = size.getWidth(context.resources) * context.resources.displayMetrics.density
+        val height = size.getHeight(context.resources) * context.resources.displayMetrics.density
+        val padding = 10
+        val radius = (min(width, height) / 2).toInt() - 4 * padding
 
         // draw the circle
         val location = Location("")
         location.latitude = Location.convert("49.891415011500726")
         location.longitude = Location.convert("10.907930440129253")
-        val imageBitmap = drawBackgroundCircle(500, 500, location)
+        val imageBitmap = drawBackgroundCircle(radius, padding, location)
         views.setImageViewBitmap(R.id.clock_widget_background, imageBitmap)
 
         // set the time
@@ -72,43 +102,31 @@ class SunriseSunsetClockWidget : AppWidgetProvider() {
             TemporalType.MILLIS_SINCE_UNIX.from(today.atStartOfDay().inStdTimezone())
         val baseTimeStamp =
             SystemClock.elapsedRealtime() - System.currentTimeMillis() + timeStampForZero
-        views.setChronometer(R.id.clock_widget_chronometer, baseTimeStamp, null, true)
-
-        // draw the marker on the circle
-        val markerDeg = toDeg(Moment.nowInSystemTime())
-        val markerRad = markerDeg * PI / 180.0
-        val radius = 150 * 2//context.resources.displayMetrics.density
-        val xPosition = cos(markerRad)
-        val yPosition = sin(markerRad)
-        val leftPadding = (radius * xPosition + radius).toInt()
-        val topPadding = (radius * yPosition + radius).toInt()
-        val rightPadding = (radius * (-xPosition) + radius).toInt()
-        val bottomPadding = (radius * (-yPosition) + radius).toInt()
-        Log.i(
-            TAG,
-            "positioning marker with padding (l,t,r,b): ($leftPadding, $topPadding, $rightPadding, $bottomPadding)"
-        )
-        views.setViewPadding(
-            R.id.clock_widget_time_marker,
-            leftPadding,
-            topPadding,
-            rightPadding,
-            bottomPadding
-        )
+        //views.setChronometer(R.id.clock_widget_chronometer, baseTimeStamp, "%s", true)
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
-    private fun drawBackgroundCircle(width: Int, height: Int, location: Location): Bitmap {
-        val boundingBox = RectF(10F, 10F, width - 10F, height - 10F)
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    private fun drawBackgroundCircle(radius: Int, padding: Int, location: Location): Bitmap {
+        val boundingBox = RectF(
+            padding.toFloat(),
+            padding.toFloat(),
+            ((2 * radius) + padding).toFloat(),
+            ((2 * radius) + padding).toFloat()
+        )
+        val bitmap = Bitmap.createBitmap(
+            2 * (radius + padding),
+            2 * (radius + padding),
+            Bitmap.Config.ARGB_8888
+        )
         val canvas = Canvas(bitmap)
 
         val dayColor = Paint(Paint.ANTI_ALIAS_FLAG)
         dayColor.color = Color.YELLOW
         dayColor.style = Paint.Style.STROKE
-        dayColor.strokeWidth = 5f
+        dayColor.strokeWidth = 10F
+        dayColor.strokeCap = Paint.Cap.ROUND
 
         val sunriseColor = Paint(dayColor)
         sunriseColor.color = Color.rgb(255, 165, 0)
@@ -119,6 +137,18 @@ class SunriseSunsetClockWidget : AppWidgetProvider() {
         val nightColor = Paint(dayColor)
         nightColor.color = Color.BLUE
 
+        // background
+        val backgroundColor = Paint(dayColor)
+        backgroundColor.color = Color.argb(64, 128, 128, 128)
+        backgroundColor.style = Paint.Style.FILL_AND_STROKE
+        canvas.drawCircle(
+            (radius + padding).toFloat(),
+            (radius + padding).toFloat(),
+            (radius).toFloat(),
+            backgroundColor
+        )
+
+        // the circle
         val solarTimes = timeCalculator.solarTimeForLocation(location)
         val times = timeCalculator.getTimesForDate(solarTimes, PlainDate.nowInSystemTime())
         Log.i(TAG, "solarTimes: " + times)
@@ -135,17 +165,17 @@ class SunriseSunsetClockWidget : AppWidgetProvider() {
         canvas.drawArc(boundingBox, sunriseDeg, distance(sunriseDeg, sunsetDeg), false, dayColor)
         canvas.drawArc(
             boundingBox,
-            sunsetDeg,
-            distance(sunsetDeg, sunsetTwilightDeg),
-            false,
-            sunsetColor
-        )
-        canvas.drawArc(
-            boundingBox,
             sunsetTwilightDeg,
             distance(sunsetTwilightDeg, sunriseTwilightDeg),
             false,
             nightColor
+        )
+        canvas.drawArc(
+            boundingBox,
+            sunsetDeg,
+            distance(sunsetDeg, sunsetTwilightDeg),
+            false,
+            sunsetColor
         )
         canvas.drawArc(
             boundingBox,
@@ -154,6 +184,22 @@ class SunriseSunsetClockWidget : AppWidgetProvider() {
             false,
             sunriseColor
         )
+        // draw the marker on the circle
+        val markerDeg = toDeg(Moment.nowInSystemTime())
+        val markerRad = markerDeg * PI / 180.0
+        val xPosition = cos(markerRad)
+        val yPosition = sin(markerRad)
+
+        val markerColor = Paint(dayColor)
+        markerColor.color = Color.WHITE
+        markerColor.style = Paint.Style.FILL_AND_STROKE
+        canvas.drawCircle(
+            (radius * xPosition + radius + padding).toFloat(),
+            (radius * yPosition + radius + padding).toFloat(),
+            10F,
+            markerColor
+        )
+
 
         return bitmap
     }
