@@ -18,6 +18,6 @@
         android:layout_centerVertical="true"
         android:textColor="@color/white"
         android:textSize="40sp"
-        android:format24Hour="k:mm:ss"
-        android:format12Hour="k:mm:ss" />
+        android:format24Hour="kk:mm:ss"
+        android:format12Hour="kk:mm:ss" />
 </RelativeLayout>
