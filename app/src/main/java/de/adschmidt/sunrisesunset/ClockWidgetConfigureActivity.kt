@@ -9,9 +9,9 @@ import android.view.View
 import android.widget.EditText
 
 /**
- * The configuration screen for the [SunriseSunsetClockWidget] AppWidget.
+ * The configuration screen for the [ClockWidgetProvider] AppWidget.
  */
-class SunriseSunsetClockWidgetConfigureActivity : Activity() {
+class ClockWidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var appWidgetText: EditText
     private var onClickListener = View.OnClickListener {
@@ -60,7 +60,7 @@ class SunriseSunsetClockWidgetConfigureActivity : Activity() {
 
         appWidgetText.setText(
             loadTitlePref(
-                this@SunriseSunsetClockWidgetConfigureActivity,
+                this@ClockWidgetConfigureActivity,
                 appWidgetId
             )
         )

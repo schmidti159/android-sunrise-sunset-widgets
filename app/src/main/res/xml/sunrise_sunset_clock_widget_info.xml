@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:configure="de.adschmidt.sunrisesunset.SunriseSunsetClockWidgetConfigureActivity"
+    android:configure="de.adschmidt.sunrisesunset.ClockWidgetConfigureActivity"
     android:initialKeyguardLayout="@layout/sunrise_sunset_clock_widget"
     android:initialLayout="@layout/sunrise_sunset_clock_widget"
     android:minWidth="40dp"

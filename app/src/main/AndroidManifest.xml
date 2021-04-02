@@ -10,7 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SunriseSunset">
-        <receiver android:name=".SunriseSunsetClockWidget">
+        <receiver android:name=".ClockWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -20,7 +20,7 @@
                 android:resource="@xml/sunrise_sunset_clock_widget_info" />
         </receiver>
 
-        <activity android:name=".SunriseSunsetClockWidgetConfigureActivity">
+        <activity android:name=".ClockWidgetConfigureActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
