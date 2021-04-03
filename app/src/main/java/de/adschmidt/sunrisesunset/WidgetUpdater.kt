@@ -36,11 +36,22 @@ object WidgetUpdater {
     }
 
     private fun initWidgetContext(widgetId: Int, androidContext: Context) : WidgetContext {
-        val prefs = WidgetPreferenceProvider.getPreferencs(widgetId)
-            ?: throw IllegalStateException("Preferences for $widgetId are not initialized")
+        var prefs = WidgetPreferenceProvider.getPreferencs(widgetId)
+        if(prefs == null) {
+            Log.w(TAG, "Preferences for $widgetId are not initialized. Using default preferences.")
+            WidgetPreferenceProvider.updatePreferences(widgetId, WidgetPreferences.DEFAULT_PREFS)
+            prefs = WidgetPreferenceProvider.getPreferencs(widgetId)
+                ?: throw IllegalStateException("Preferences for $widgetId are still not initialized after updating them")
+        }
 
-        val size = WidgetSizeProvider.getSize(widgetId)
-            ?: throw IllegalStateException("Sizes for $widgetId are not initialized")
+        var size = WidgetSizeProvider.getSize(widgetId)
+        if(size == null) {
+            Log.w(TAG, "Sizes for $widgetId are not initialized. Reading sizes from the widgetManager.")
+            val widgetOptions = AppWidgetManager.getInstance(androidContext).getAppWidgetOptions(widgetId)
+            WidgetSizeProvider.updateSize(widgetId, widgetOptions)
+            size = WidgetSizeProvider.getSize(widgetId)
+                ?: throw IllegalStateException("Sizes for $widgetId are still not initialized after updating them")
+        }
 
         val ctx = WidgetContext(prefs, size)
         // calculate the radius and padding

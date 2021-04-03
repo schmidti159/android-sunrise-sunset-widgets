@@ -6,7 +6,7 @@ import android.location.Location
 
 data class WidgetPreferences(
     var customName: String = "",
-    var daylightColor: String = "#00ffff",
+    var daylightColor: String = "#ffff00",
     var nightColor: String = "#0000ff",
     var sunsetColor: String = "#ff0000",
     var sunriseColor: String = "#ffa500",

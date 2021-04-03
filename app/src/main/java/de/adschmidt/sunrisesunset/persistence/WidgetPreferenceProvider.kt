@@ -7,6 +7,10 @@ object WidgetPreferenceProvider {
     // TODO store in DB or at least sharedPreferences
     private val preferenceMap: MutableMap<Int, WidgetPreferences> = HashMap()
 
+    fun getWidgetIds(): Set<Int> {
+        return preferenceMap.keys
+    }
+
     fun getPreferencs(widgetId: Int) : WidgetPreferences? {
         return preferenceMap[widgetId]
     }

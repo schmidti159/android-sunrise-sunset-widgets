@@ -10,6 +10,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SunriseSunset">
+
+        <receiver
+            android:name="WidgetUpdateScheduler"
+            android:process=":remote" />
+
         <receiver android:name=".ClockWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
