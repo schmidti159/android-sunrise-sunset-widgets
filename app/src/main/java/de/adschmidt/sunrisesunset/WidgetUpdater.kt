@@ -21,6 +21,13 @@ import kotlin.math.sin
 object WidgetUpdater {
     private val timeCalculator : TimeCalculator = TimeCalculator()
 
+    fun updateAllWidgets(context: Context) {
+        val widgetIds = WidgetPreferenceProvider.getWidgetIds(context)
+        for (widgetId in widgetIds) {
+            updateWidget(widgetId, context)
+        }
+    }
+
     fun updateWidget(widgetId: Int, androidContext: Context) {
         val ctx = initWidgetContext(widgetId, androidContext)
 
@@ -36,13 +43,16 @@ object WidgetUpdater {
     }
 
     private fun initWidgetContext(widgetId: Int, androidContext: Context) : WidgetContext {
-        var prefs = WidgetPreferenceProvider.getPreferencs(widgetId)
-        if(prefs == null) {
+        val widgetExists = WidgetPreferenceProvider.getWidgetIds(androidContext)
+            .any { id -> widgetId == id }
+        if(!widgetExists) {
             Log.w(TAG, "Preferences for $widgetId are not initialized. Using default preferences.")
-            WidgetPreferenceProvider.updatePreferences(widgetId, WidgetPreferences.DEFAULT_PREFS)
-            prefs = WidgetPreferenceProvider.getPreferencs(widgetId)
-                ?: throw IllegalStateException("Preferences for $widgetId are still not initialized after updating them")
+            val initialPrefs = WidgetPreferences.DEFAULT_PREFS
+            initialPrefs.widgetId = widgetId
+            WidgetPreferenceProvider.updatePreferences(WidgetPreferences.DEFAULT_PREFS, androidContext)
         }
+        val prefs = WidgetPreferenceProvider.getPreferencs(widgetId, androidContext)
+            ?: throw IllegalStateException("Preferences for $widgetId are still not initialized after updating them")
 
         var size = WidgetSizeProvider.getSize(widgetId)
         if(size == null) {
@@ -144,24 +154,29 @@ object WidgetUpdater {
 
 
     private fun updateClock(ctx: WidgetContext, views: RemoteViews) {
-        if (ctx.prefs.showSeconds) {
-            views.setCharSequence(R.id.clock_widget_clock, "setFormat24Hour", "kk:mm:ss")
-            views.setCharSequence(R.id.clock_widget_clock, "setFormat12Hour", "kk:mm:ss")
-        } else {
-            views.setCharSequence(R.id.clock_widget_clock, "setFormat24Hour", "kk:mm")
-            views.setCharSequence(R.id.clock_widget_clock, "setFormat12Hour", "kk:mm")
-        }
+        val timeFormat =
+            (if(ctx.prefs.use24Hours) "H" else "h") +
+            ":mm" +
+            (if(ctx.prefs.showSeconds) ":ss" else "") +
+            (if(ctx.prefs.use24Hours) "" else " a")
 
-        val clockFontSize = getFontSize(ctx.radius, ctx.padding, ctx.prefs)
+        views.setCharSequence(R.id.clock_widget_clock, "setFormat24Hour", timeFormat)
+        views.setCharSequence(R.id.clock_widget_clock, "setFormat12Hour", timeFormat)
+
+        val clockFontSize = getFontSize(ctx.radius, ctx.padding, timeFormat, ctx.prefs)
         Log.i(TAG, "setting fontsize: $clockFontSize")
         views.setFloat(R.id.clock_widget_clock, "setTextSize", clockFontSize)
     }
 
-    private fun getFontSize(radius: Float, padding: Float, prefs: WidgetPreferences): Float {
+    private fun getFontSize(
+        radius: Float,
+        padding: Float,
+        timeFormat: String,
+        prefs: WidgetPreferences
+    ): Float {
         val maxWidth = 2 * (radius)
-        val charCount = if (prefs.showSeconds) 8 else 5 // kk:mm:ss or kk:mm
+        val charCount = timeFormat.length
         Log.i(TAG, "maxWidth for Text: $maxWidth, per char: ${maxWidth / charCount}")
-        return ((maxWidth / charCount * 0.7)).toFloat()
+        return ((maxWidth / charCount * 0.6)).toFloat()
     }
-
 }

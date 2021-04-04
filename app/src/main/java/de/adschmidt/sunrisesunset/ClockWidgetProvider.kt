@@ -33,7 +33,7 @@ class ClockWidgetProvider : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             Log.i(TAG, "Deleting widget $appWidgetId")
             WidgetSizeProvider.delete(appWidgetId)
-            WidgetPreferenceProvider.delete(appWidgetId)
+            WidgetPreferenceProvider.delete(appWidgetId, context)
         }
     }
 

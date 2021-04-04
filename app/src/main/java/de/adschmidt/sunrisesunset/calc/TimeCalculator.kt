@@ -1,7 +1,6 @@
 package de.adschmidt.sunrisesunset.calc
 
 import android.location.Location
-import dagger.Component
 import de.adschmidt.sunrisesunset.model.Times
 import net.time4j.PlainDate
 import net.time4j.calendar.astro.SolarTime
@@ -10,7 +9,6 @@ import net.time4j.calendar.astro.Twilight
 import kotlin.math.abs
 import kotlin.math.floor
 
-@Component
 class TimeCalculator {
     fun solarTimeForLocation(location: Location): SolarTime {
         val solarTimeBuilder = SolarTime.ofLocation()

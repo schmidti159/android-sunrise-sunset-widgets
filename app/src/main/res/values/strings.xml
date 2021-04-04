@@ -20,4 +20,37 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
+    <string name="widget_colors">Farben</string>
+    <string name="widget_name">Name</string>
+
+    <string name="no_custom_widget_name">No custom name</string>
+
+    <!-- widget preferences -->
+    <string name="widgetPreferences.00_general.title">General</string>
+    <string name="widgetPreferences.00_general.00_name.title">Name</string>
+    <string name="widgetPreferences.00_general.00_name.summary">A custom name for this widget</string>
+    <string name="widgetPreferences.00_general.10_location.title">Location</string>
+    <string name="widgetPreferences.00_general.10_location.summary">The location to calculate the sunrise sunset (static)</string>
+
+    <string name="widgetPreferences.10_colors.title">Colors</string>
+    <string name="widgetPreferences.10_colors.00_daylightColor.title">Day</string>
+    <string name="widgetPreferences.10_colors.00_daylightColor.summary">Color for the day part of the circle</string>
+    <string name="widgetPreferences.10_colors.10_nightColor.title">Night</string>
+    <string name="widgetPreferences.10_colors.10_nightColor.summary">Color for the night part of the circle</string>
+    <string name="widgetPreferences.10_colors.20_sunsetColor.title">Sunset</string>
+    <string name="widgetPreferences.10_colors.20_sunsetColor.summary">Color for the sunset part of the circle</string>
+    <string name="widgetPreferences.10_colors.30_sunriseColor.title">Sunrise</string>
+    <string name="widgetPreferences.10_colors.30_sunriseColor.summary">Color for the sunrise part of the circle</string>
+    <string name="widgetPreferences.10_colors.40_backgroundColor.title">Background</string>
+    <string name="widgetPreferences.10_colors.40_backgroundColor.summary">Background color behind the clock</string>
+    <string name="widgetPreferences.10_colors.50_markerColor.title">Marker</string>
+    <string name="widgetPreferences.10_colors.50_markerColor.summary">Color of the marker showing the current time on the circle</string>
+
+    <string name="widgetPreferences.20_clock.title">Clock</string>
+    <string name="widgetPreferences.20_clock.10_showSeconds.title">Show seconds</string>
+    <string name="widgetPreferences.20_clock.10_showSeconds.summary">Show/hide the seconds on the clock</string>
+    <string name="widgetPreferences.20_clock.20_use24Hours.title">24 hour format</string>
+    <string name="widgetPreferences.20_clock.20_use24Hours.summary">Use the 24 hour format</string>
+
+
 </resources>

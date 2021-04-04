@@ -38,11 +38,8 @@ class WidgetUpdateScheduler() : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        val widgetIds = WidgetPreferenceProvider.getWidgetIds()
-        Log.i(TAG, "received timing intent. Triggering update of widgets $widgetIds")
-        for (widgetId in widgetIds) {
-            WidgetUpdater.updateWidget(widgetId, context)
-        }
+        Log.i(TAG, "received timing intent. Triggering update all widgets")
+        WidgetUpdater.updateAllWidgets(context)
         Toast.makeText(context, "Updated all widgets", Toast.LENGTH_LONG).show()
     }
 
