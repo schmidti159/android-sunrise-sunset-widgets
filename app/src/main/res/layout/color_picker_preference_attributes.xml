@@ -1,0 +1,9 @@
+<!-- for available attributes see https://github.com/jaredrummler/ColorPicker?utm_source=android-arsenal.com&utm_medium=referral&utm_campaign=5067#usage -->
+<com.jaredrummler.android.colorpicker.ColorPreference
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    app:cpv_showAlphaSlider = "true"
+    app:cpv_dialogType = "custom"
+    />

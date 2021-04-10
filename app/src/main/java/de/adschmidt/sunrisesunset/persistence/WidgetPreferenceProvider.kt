@@ -60,8 +60,11 @@ object WidgetPreferenceProvider {
             }
             val key = "$keyPrefix.${prefMeta.key}"
             when {
-                listOf(PreferenceDataType.STRING,PreferenceDataType.COLOR).contains(prefMeta.dataType) -> {
+                PreferenceDataType.STRING == prefMeta.dataType -> {
                     editor.putString(key, member.getter.call(prefs) as String?)
+                }
+                PreferenceDataType.COLOR == prefMeta.dataType -> {
+                    editor.putInt(key, member.getter.call(prefs) as Int)
                 }
                 PreferenceDataType.BOOLEAN == prefMeta.dataType -> {
                     editor.putBoolean(key, member.getter.call(prefs) as Boolean)
@@ -103,8 +106,11 @@ object WidgetPreferenceProvider {
             }
             val key = "$keyPrefix.${prefMeta.key}"
             when {
-                listOf(PreferenceDataType.STRING,PreferenceDataType.COLOR).contains(prefMeta.dataType) -> {
+                PreferenceDataType.STRING == prefMeta.dataType -> {
                     member.setter.call(prefs, sharedPrefs.getString(key, member.getter.call(prefs) as String?))
+                }
+                PreferenceDataType.COLOR == prefMeta.dataType -> {
+                    member.setter.call(prefs, sharedPrefs.getInt(key, member.getter.call(prefs) as Int))
                 }
                 PreferenceDataType.BOOLEAN == prefMeta.dataType -> {
                     member.setter.call(prefs, sharedPrefs.getBoolean(key, member.getter.call(prefs) as Boolean))

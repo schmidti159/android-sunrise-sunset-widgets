@@ -1,19 +1,30 @@
 package de.adschmidt.sunrisesunset
 
+import WidgetUpdater
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Resources
+import android.content.res.XmlResourceParser
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
+import android.util.Xml
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
-import de.adschmidt.sunrisesunset.model.PreferenceMeta
+import com.jaredrummler.android.colorpicker.ColorPreference
+import com.jaredrummler.android.colorpicker.ColorPreferenceCompat
 import de.adschmidt.sunrisesunset.model.PreferenceDataType
+import de.adschmidt.sunrisesunset.model.PreferenceMeta
 import de.adschmidt.sunrisesunset.model.WidgetPreferences
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import java.io.IOException
 import kotlin.reflect.full.findAnnotation
 
+
 class WidgetPreferenceFragment(
-        private val keyPrefix: String
-    ) : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+    private val keyPrefix: String
+) : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val screen = preferenceManager.createPreferenceScreen(preferenceManager.context)
@@ -52,7 +63,11 @@ class WidgetPreferenceFragment(
         }
     }
 
-    private fun addCategoryToScreen(categoryKey: String, prefs: List<PreferenceMeta>, screen: PreferenceScreen) {
+    private fun addCategoryToScreen(
+        categoryKey: String,
+        prefs: List<PreferenceMeta>,
+        screen: PreferenceScreen
+    ) {
         val ctx = preferenceManager.context
         val category = PreferenceCategory(ctx)
         category.key = keyPrefix + categoryKey
@@ -75,7 +90,10 @@ class WidgetPreferenceFragment(
                 PreferenceDataType.LOCATION -> buildLocationPreference(pref, ctx)
             }
         if(preference == null) {
-            Log.e(TAG, "Could not create a preference from the values in @PreferenceMeta-annotation: $pref")
+            Log.e(
+                TAG,
+                "Could not create a preference from the values in @PreferenceMeta-annotation: $pref"
+            )
             return
         }
         preference.key = "$keyPrefix.${pref.key}"
@@ -95,15 +113,32 @@ class WidgetPreferenceFragment(
     }
 
     private fun buildColorPreference(pref: PreferenceMeta, ctx: Context): Preference {
-        // TODO find suitable color picker library
-        val preference = EditTextPreference(ctx)
-        preference.summaryProvider = SummaryProvider<EditTextPreference> {
-            if(it.text == null || it.text.isBlank())
-                getString("widgetPreferences.${pref.categoryKey}.${pref.key}.summary")
-            else
-                it.text
-        }
+        val attrs = readColorPreferenceDefaultAttributes(ctx)
+        val preference = ColorPreferenceCompat(ctx, attrs)
+        preference.summary = getString("widgetPreferences.${pref.categoryKey}.${pref.key}.summary")
         return preference
+    }
+
+    private fun readColorPreferenceDefaultAttributes(ctx: Context) : AttributeSet? {
+        val resources: Resources = ctx.resources
+        val parser: XmlResourceParser = resources.getLayout(R.layout.color_picker_preference_attributes)
+
+        var state = 0
+        do {
+            try {
+                state = parser.next()
+            } catch (e1: XmlPullParserException) {
+                e1.printStackTrace()
+            } catch (e1: IOException) {
+                e1.printStackTrace()
+            }
+            if (state == XmlPullParser.START_TAG) {
+                if (ColorPreference::class.java.canonicalName == parser.name) {
+                    return Xml.asAttributeSet(parser)
+                }
+            }
+        } while (state != XmlPullParser.END_DOCUMENT)
+        return null
     }
 
     private fun buildBooleanPreference(pref: PreferenceMeta, ctx: Context): Preference {

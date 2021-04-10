@@ -3,6 +3,8 @@ import android.content.Context
 import android.graphics.*
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorLong
 import de.adschmidt.sunrisesunset.R
 import de.adschmidt.sunrisesunset.TAG
 import de.adschmidt.sunrisesunset.calc.TimeCalculator
@@ -12,7 +14,8 @@ import de.adschmidt.sunrisesunset.persistence.WidgetPreferenceProvider
 import de.adschmidt.sunrisesunset.persistence.WidgetSizeProvider
 import net.time4j.Moment
 import net.time4j.PlainDate
-import java.lang.IllegalStateException
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -87,25 +90,26 @@ object WidgetUpdater {
 
         val canvas = Canvas(bitmap)
 
+        val strokeWidth = ctx.padding / 1.5F
         val basePaint = Paint(Paint.ANTI_ALIAS_FLAG)
         basePaint.style = Paint.Style.STROKE
-        basePaint.strokeWidth = ctx.padding / 1.5F
+        basePaint.strokeWidth = strokeWidth
         basePaint.strokeCap = Paint.Cap.ROUND
 
         val daylightPaint = Paint(basePaint)
-        daylightPaint.color = Color.parseColor(ctx.prefs.daylightColor)
+        setColor(daylightPaint, ctx.prefs.daylightColor)
         val sunrisePaint = Paint(basePaint)
-        sunrisePaint.color = Color.parseColor(ctx.prefs.sunriseColor)
+        setColor(sunrisePaint, ctx.prefs.sunriseColor)
         val sunsetPaint = Paint(basePaint)
-        sunsetPaint.color = Color.parseColor(ctx.prefs.sunsetColor)
+        setColor(sunsetPaint, ctx.prefs.sunsetColor)
         val nightPaint = Paint(basePaint)
-        nightPaint.color = Color.parseColor(ctx.prefs.nightColor)
+        setColor(nightPaint, ctx.prefs.nightColor)
 
         // background
         val backgroundPaint = Paint(basePaint)
-        backgroundPaint.color = Color.parseColor(ctx.prefs.backgroundColor)
+        setColor(backgroundPaint, ctx.prefs.backgroundColor)
         backgroundPaint.style = Paint.Style.FILL_AND_STROKE
-        canvas.drawCircle(diameter/2, diameter/2, ctx.radius, backgroundPaint)
+        canvas.drawCircle((diameter)/2, (diameter)/2, ctx.radius-strokeWidth, backgroundPaint)
 
         // the circle
         val sunriseDeg = toDeg(ctx.times.sunrise)
@@ -125,7 +129,7 @@ object WidgetUpdater {
         val yPosition = (ctx.radius * sin(markerRad) + diameter/2).toFloat()
 
         val markerPaint = Paint(basePaint)
-        markerPaint.color = Color.parseColor(ctx.prefs.markerColor)
+        setColor(markerPaint, ctx.prefs.markerColor)
         markerPaint.style = Paint.Style.FILL_AND_STROKE
         canvas.drawCircle(xPosition, yPosition, ctx.padding / 1.5F, markerPaint)
 
@@ -144,6 +148,10 @@ object WidgetUpdater {
         }
     }
 
+    private fun setColor(paint: Paint, @ColorInt colorNum: Int) {
+        val hexColor = java.lang.String.format("#%08X", 0xFFFFFFFF.toInt() and colorNum)
+        paint.color = Color.parseColor(hexColor)
+    }
     private fun dist(degFrom: Float, degTo: Float): Float {
         return if (degFrom <= degTo) {
             degTo - degFrom
@@ -166,6 +174,8 @@ object WidgetUpdater {
         val clockFontSize = getFontSize(ctx.radius, ctx.padding, timeFormat, ctx.prefs)
         Log.i(TAG, "setting fontsize: $clockFontSize")
         views.setFloat(R.id.clock_widget_clock, "setTextSize", clockFontSize)
+
+        views.setInt(R.id.clock_widget_clock, "setTextColor", ctx.prefs.clockColor)
     }
 
     private fun getFontSize(
@@ -174,8 +184,10 @@ object WidgetUpdater {
         timeFormat: String,
         prefs: WidgetPreferences
     ): Float {
+        val currentTime = SimpleDateFormat(timeFormat).format(Date())
         val maxWidth = 2 * (radius)
-        val charCount = timeFormat.length
+        // count chars (but : and . only as have width)
+        val charCount = currentTime.length - currentTime.filter { setOf(':','.').contains(it) }.count() * 0.5
         Log.i(TAG, "maxWidth for Text: $maxWidth, per char: ${maxWidth / charCount}")
         return ((maxWidth / charCount * 0.6)).toFloat()
     }

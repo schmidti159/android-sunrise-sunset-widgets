@@ -45,6 +45,8 @@
     <string name="widgetPreferences.10_colors.40_backgroundColor.summary">Background color behind the clock</string>
     <string name="widgetPreferences.10_colors.50_markerColor.title">Marker</string>
     <string name="widgetPreferences.10_colors.50_markerColor.summary">Color of the marker showing the current time on the circle</string>
+    <string name="widgetPreferences.10_colors.60_clockColor.title">Clock</string>
+    <string name="widgetPreferences.10_colors.60_clockColor.summary">Color of the text showing the time</string>
 
     <string name="widgetPreferences.20_clock.title">Clock</string>
     <string name="widgetPreferences.20_clock.10_showSeconds.title">Show seconds</string>
