@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".locationpicker.LocationPickerActivity" />
+    android:layout_height="match_parent">
+
+    <fragment
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/location_picker_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        map:uiZoomControls="true"
+        map:mapType="normal"
+        map:cameraZoom="5"
+        tools:context=".locationpicker.LocationPickerActivity" />
+
+    <Button
+        android:id="@+id/location_picker_pick_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/location_picker_pick_location"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="50dp"
+        android:elevation="3dp"
+        style="@style/Widget.AppCompat.Button.Colored"/>
+</FrameLayout>

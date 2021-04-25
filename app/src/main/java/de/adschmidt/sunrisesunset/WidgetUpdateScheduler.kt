@@ -1,18 +1,17 @@
 package de.adschmidt.sunrisesunset
 
+import WidgetUpdater
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
-import de.adschmidt.sunrisesunset.persistence.WidgetPreferenceProvider
 
 class WidgetUpdateScheduler() : BroadcastReceiver() {
 
     companion object {
-        private const val UPDATE_INTERVAL_SECONDS = 60L * 5 // every 5 minutes
+        private const val UPDATE_INTERVAL_SECONDS = 60L * 7 // every 8 minutes (2 degrees on the circle)
 
         fun scheduleUpdates(context: Context) {
             val alarmManager: AlarmManager =
@@ -38,9 +37,8 @@ class WidgetUpdateScheduler() : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.i(TAG, "received timing intent. Triggering update all widgets")
+        Log.i(TAG, "received timing intent. Triggering update for all widgets")
         WidgetUpdater.updateAllWidgets(context)
-        Toast.makeText(context, "Updated all widgets", Toast.LENGTH_LONG).show()
     }
 
 }

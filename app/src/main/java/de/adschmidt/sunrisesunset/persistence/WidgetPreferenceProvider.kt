@@ -5,9 +5,11 @@ import android.location.Location
 import android.util.Log
 import androidx.preference.PreferenceManager
 import de.adschmidt.sunrisesunset.TAG
+import de.adschmidt.sunrisesunset.getDouble
 import de.adschmidt.sunrisesunset.model.PreferenceDataType
 import de.adschmidt.sunrisesunset.model.PreferenceMeta
 import de.adschmidt.sunrisesunset.model.WidgetPreferences
+import de.adschmidt.sunrisesunset.putDouble
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
@@ -71,9 +73,9 @@ object WidgetPreferenceProvider {
                 }
                 PreferenceDataType.LOCATION == prefMeta.dataType -> {
                     val location = member.getter.call(prefs) as Location
-                    editor.putFloat("$key.latitude", location.latitude.toFloat())
-                    editor.putFloat("$key.longitude", location.longitude.toFloat())
-                    editor.putFloat("$key.altitude", location.altitude.toFloat())
+                    editor.putDouble("$key.latitude", location.latitude)
+                    editor.putDouble("$key.longitude", location.longitude)
+                    editor.putDouble("$key.altitude", location.altitude)
                     editor.putString("$key.provider", location.provider)
                 }
             }
@@ -116,15 +118,15 @@ object WidgetPreferenceProvider {
                     member.setter.call(prefs, sharedPrefs.getBoolean(key, member.getter.call(prefs) as Boolean))
                 }
                 PreferenceDataType.LOCATION == prefMeta.dataType -> {
-                    val latitude = sharedPrefs.getFloat("$key.latitude", Float.NaN);
-                    val longitude = sharedPrefs.getFloat("$key.longitude", Float.NaN);
-                    val altitude = sharedPrefs.getFloat("$key.altitude", Float.NaN);
-                    val provider = sharedPrefs.getString("$key.provider", null);
+                    val latitude = sharedPrefs.getDouble("$key.latitude", Double.NaN);
+                    val longitude = sharedPrefs.getDouble("$key.longitude", Double.NaN);
+                    val altitude = sharedPrefs.getDouble("$key.altitude", Double.NaN);
+                    val provider = sharedPrefs.getString("$key.provider", "");
                     if(!(latitude.isNaN() || longitude.isNaN() || altitude.isNaN() || provider == null)) {
                         val location = Location(provider)
-                        location.latitude = latitude.toDouble()
-                        location.longitude = longitude.toDouble()
-                        location.altitude = altitude.toDouble()
+                        location.latitude = latitude
+                        location.longitude = longitude
+                        location.altitude = altitude
                         member.setter.call(prefs, location)
                     }
                 }

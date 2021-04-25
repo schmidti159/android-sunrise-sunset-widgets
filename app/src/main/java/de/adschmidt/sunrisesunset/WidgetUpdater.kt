@@ -4,7 +4,6 @@ import android.graphics.*
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
-import androidx.annotation.ColorLong
 import de.adschmidt.sunrisesunset.R
 import de.adschmidt.sunrisesunset.TAG
 import de.adschmidt.sunrisesunset.calc.TimeCalculator
@@ -43,6 +42,18 @@ object WidgetUpdater {
         // Instruct the widget manager to update the widget
         val appWidgetManager = AppWidgetManager.getInstance(androidContext)
         appWidgetManager.updateAppWidget(widgetId, views)
+    }
+
+    fun updateWidgetForKey(key: String?, androidContext: Context) {
+        if(key == null ||
+            key.split(".").size < 2 ||
+            key.split(".")[1].toIntOrNull() == null) {
+            // cannot find out which widget should be updated -> update all
+            WidgetUpdater.updateAllWidgets(androidContext)
+        } else {
+            val widgetId = key.split(".")[1].toInt()
+            WidgetUpdater.updateWidget(widgetId, androidContext)
+        }
     }
 
     private fun initWidgetContext(widgetId: Int, androidContext: Context) : WidgetContext {
@@ -191,4 +202,5 @@ object WidgetUpdater {
         Log.i(TAG, "maxWidth for Text: $maxWidth, per char: ${maxWidth / charCount}")
         return ((maxWidth / charCount * 0.6)).toFloat()
     }
+
 }

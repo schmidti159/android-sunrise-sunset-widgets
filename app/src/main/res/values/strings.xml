@@ -53,7 +53,11 @@
     <string name="widgetPreferences.20_clock.10_showSeconds.summary">Show/hide the seconds on the clock</string>
     <string name="widgetPreferences.20_clock.20_use24Hours.title">24 hour format</string>
     <string name="widgetPreferences.20_clock.20_use24Hours.summary">Use the 24 hour format</string>
-    <string name="title_activity_location_picker">Map</string>
+
+
+    <string name="title_activity_location_picker">Pick Location</string>
+    <string name="permission_rationale_location">Access to the location service is required to show your current location on the map.</string>
+    <string name="location_picker_pick_location">Pick Location</string>
 
 
 </resources>
