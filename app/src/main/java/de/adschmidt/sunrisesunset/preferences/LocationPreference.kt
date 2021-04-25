@@ -1,69 +1,61 @@
 package de.adschmidt.sunrisesunset.preferences
 
-import android.app.Activity
-import android.app.Instrumentation
+import WidgetUpdater
 import android.content.Context
-import android.content.Intent
-import android.location.Address
 import android.util.Log
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
-import de.adschmidt.sunrisesunset.BuildConfig
 import de.adschmidt.sunrisesunset.TAG
-import de.adschmidt.sunrisesunset.locationpicker.LocationPickerActivity
+import de.adschmidt.sunrisesunset.getDouble
+import de.adschmidt.sunrisesunset.locationpicker.LocationPicker
 import de.adschmidt.sunrisesunset.model.WidgetPreferences.Companion.DEFAULT_LATITUDE
 import de.adschmidt.sunrisesunset.model.WidgetPreferences.Companion.DEFAULT_LONGITUDE
+import de.adschmidt.sunrisesunset.putDouble
 
-class LocationPreference(private val ctx: Context,
-                         private val activityLauncher: ActivityResultLauncher<Intent>) : Preference(ctx) {
+class LocationPreference(
+    private val ctx: Context,
+    private val activityLauncher: ActivityResultLauncher<LocationPicker.Params>
+) : Preference(ctx) {
 
-    var address: String? = null
-        private set
+    private var address: String? = null
 
-    fun handleActivityResult(result: ActivityResult) {
-        /*if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            val data = result.data!!
-            val latitude = data.getDoubleExtra(LATITUDE, 0.0)
-            val longitude = data.getDoubleExtra(LONGITUDE, 0.0)
-            address = data.getStringExtra(LOCATION_ADDRESS)
-            preferenceDataStore?.putFloat("$key.latitude", latitude.toFloat())
-            preferenceDataStore?.putFloat("$key.longitude", longitude.toFloat())
-            preferenceDataStore?.putString("$key.address", address)
-            Log.d(TAG, "Updated location to $address ($latitude, $longitude)")
+    override fun onAttached() {
+        super.onAttached()
+        address = sharedPreferences?.getString("$key.address", null)
+    }
 
-        }
-        if (result.resultCode == Activity.RESULT_CANCELED) {
-            Log.d(TAG, "cancelled location picker")
-        }*/
+    fun handleActivityResult(result: LocationPicker.Result) {
+        val editor = sharedPreferences.edit()
+        editor.putDouble("$key.latitude", result.latitude)
+        editor.putDouble("$key.longitude", result.longitude)
+        editor.putDouble("$key.altitude", result.altitude)
+        editor.putString("$key.address", result.address)
+        editor.commit()
+        address = result.address
+        Log.d(
+            TAG,
+            "Updated location to $result.address ($result.latitude, $result.longitude, ${result.altitude})"
+        )
+        notifyChanged()
+        WidgetUpdater.updateWidgetForKey(key, context)
     }
 
     override fun onClick() {
         super.onClick()
-/*
-        val latitude = preferenceDataStore?.getFloat("$key.latitude", DEFAULT_LATITUDE.toFloat())
-            ?: DEFAULT_LONGITUDE.toFloat()
-        val longitude = preferenceDataStore?.getFloat("$key.longitude", DEFAULT_LONGITUDE.toFloat())
-            ?: DEFAULT_LATITUDE.toFloat()
 
-        val locationPickerIntent = LocationPickerActivity.Builder()
-            .withLocation(latitude.toDouble(), longitude.toDouble())
-            .withGeolocApiKey(BuildConfig.GOOGLE_MAPS_API_KEY)
-            //.withSearchZone("en_US")
-            //.withSearchZone(SearchZoneRect(LatLng(26.525467, -18.910366), LatLng(43.906271, 5.394197)))
-            //.withDefaultLocaleSearchZone()
-            .shouldReturnOkOnBackPressed()
-            //.withStreetHidden()
-            //.withCityHidden()
-            //.withZipCodeHidden()
-            //.withSatelliteViewHidden()
-            //.withGoogleTimeZoneEnabled()
-            //.withVoiceSearchHidden()
-            //.withUnnamedRoadHidden()
-            .build(ctx)*/
-        //activityLauncher.launch(locationPickerIntent)
-        val intent = Intent(ctx, LocationPickerActivity::class.java)
-        ctx.startActivity(intent)
+        val latitude = sharedPreferences.getDouble("$key.latitude", DEFAULT_LATITUDE)
+        val longitude = sharedPreferences.getDouble("$key.longitude", DEFAULT_LONGITUDE)
+
+        activityLauncher.launch(LocationPicker.Params(latitude, longitude))
+    }
+
+    class SimpleSummaryProvider(val defaultSummary: CharSequence?) : SummaryProvider<LocationPreference> {
+        override fun provideSummary(pref: LocationPreference?): CharSequence? {
+            if (pref?.address == null || pref.address!!.isBlank()) {
+                return defaultSummary
+            } else {
+                return pref.address!!
+            }
+        }
     }
 }

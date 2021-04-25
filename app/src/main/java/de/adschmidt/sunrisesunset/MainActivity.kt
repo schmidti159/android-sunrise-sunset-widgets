@@ -16,6 +16,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         val listView = findViewById<ListView>(R.id.main_widget_list)
         val widgetIds = WidgetPreferenceProvider.getWidgetIds(this)

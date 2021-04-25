@@ -30,6 +30,7 @@ data class WidgetPreferences(
     var clockColor: Int = 0xffffffff.toInt(),
     @PreferenceMeta(key="10_location", dataType=PreferenceDataType.LOCATION, categoryKey = "00_general")
     var location: Location,
+    var locationAddress: String = "",
     @PreferenceMeta(key="10_showSeconds", dataType=PreferenceDataType.BOOLEAN, categoryKey = "20_clock")
     var showSeconds: Boolean = true,
     @PreferenceMeta(key="20_use24Hours", dataType=PreferenceDataType.BOOLEAN, categoryKey = "20_clock")

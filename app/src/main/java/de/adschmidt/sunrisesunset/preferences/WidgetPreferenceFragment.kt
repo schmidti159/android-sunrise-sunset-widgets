@@ -7,15 +7,13 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.os.Bundle
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Xml
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
 import com.jaredrummler.android.colorpicker.ColorPreference
 import com.jaredrummler.android.colorpicker.ColorPreferenceCompat
 import de.adschmidt.sunrisesunset.R
-import de.adschmidt.sunrisesunset.TAG
+import de.adschmidt.sunrisesunset.locationpicker.LocationPicker
 import de.adschmidt.sunrisesunset.model.PreferenceDataType
 import de.adschmidt.sunrisesunset.model.PreferenceMeta
 import de.adschmidt.sunrisesunset.model.WidgetPreferences
@@ -31,7 +29,7 @@ class WidgetPreferenceFragment(
 
     private val locationPreferences = HashSet<LocationPreference>()
 
-    private val locationActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
+    private val locationActivityLauncher = registerForActivityResult(LocationPicker())
     { result ->
         for(preference in locationPreferences) {
             preference.handleActivityResult(result)
@@ -64,15 +62,7 @@ class WidgetPreferenceFragment(
     }
 
     override fun onSharedPreferenceChanged(preferences: SharedPreferences?, key: String?) {
-        if(key == null ||
-                key.split(".").size < 2 ||
-                key.split(".")[1].toIntOrNull() == null) {
-            // update all widgets
-            WidgetUpdater.updateAllWidgets(requireContext())
-        } else {
-            val widgetId = key.split(".")[1].toInt()
-            WidgetUpdater.updateWidget(widgetId, requireContext())
-        }
+        WidgetUpdater.updateWidgetForKey(key, requireContext())
     }
 
     private fun addCategoryToScreen(
@@ -101,13 +91,6 @@ class WidgetPreferenceFragment(
                 PreferenceDataType.BOOLEAN -> buildBooleanPreference(pref, ctx)
                 PreferenceDataType.LOCATION -> buildLocationPreference(pref, ctx)
             }
-        if(preference == null) {
-            Log.e(
-                TAG,
-                "Could not create a preference from the values in @PreferenceMeta-annotation: $pref"
-            )
-            return
-        }
         preference.key = "$keyPrefix.${pref.key}"
         preference.title = getString("widgetPreferences.${pref.categoryKey}.${pref.key}.title")
         category.addPreference(preference)
@@ -163,12 +146,8 @@ class WidgetPreferenceFragment(
 
     private fun buildLocationPreference(pref: PreferenceMeta, ctx: Context): Preference {
         val preference = LocationPreference(ctx, locationActivityLauncher)
-        preference.summaryProvider = SummaryProvider<LocationPreference> {
-            if(it.address == null || it.address!!.isBlank())
-                getString("widgetPreferences.${pref.categoryKey}.${pref.key}.summary")
-            else
-                it.address
-        }
+        preference.summaryProvider = LocationPreference.SimpleSummaryProvider(
+            getString("widgetPreferences.${pref.categoryKey}.${pref.key}.summary"))
         locationPreferences.add(preference)
         return preference
     }
