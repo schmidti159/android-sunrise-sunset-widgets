@@ -1,12 +1,10 @@
-package de.adschmidt.sunrisesunset
+package de.adschmidt.sunrisesunset.preferences
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceDataStore
-import androidx.preference.PreferenceFragmentCompat
-import de.adschmidt.sunrisesunset.persistence.WidgetPreferenceProvider
+import de.adschmidt.sunrisesunset.R
+import de.adschmidt.sunrisesunset.TAG
 import de.adschmidt.sunrisesunset.persistence.WidgetPreferenceProvider.SHARED_PREFERENCES_PREFIX
 
 class WidgetPreferenceActivity : AppCompatActivity() {

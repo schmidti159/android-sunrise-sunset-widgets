@@ -53,6 +53,7 @@
     <string name="widgetPreferences.20_clock.10_showSeconds.summary">Show/hide the seconds on the clock</string>
     <string name="widgetPreferences.20_clock.20_use24Hours.title">24 hour format</string>
     <string name="widgetPreferences.20_clock.20_use24Hours.summary">Use the 24 hour format</string>
+    <string name="title_activity_location_picker">Map</string>
 
 
 </resources>

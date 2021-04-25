@@ -8,8 +8,8 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
 import de.adschmidt.sunrisesunset.persistence.WidgetPreferenceProvider
+import de.adschmidt.sunrisesunset.preferences.WidgetPreferenceActivity
 
 
 class MainActivity : AppCompatActivity() {
