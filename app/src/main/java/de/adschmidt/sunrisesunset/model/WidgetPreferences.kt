@@ -39,10 +39,12 @@ data class WidgetPreferences(
         val DEFAULT_PREFS = WidgetPreferences(
             location = Location("")
         )
+        // initialize location with Bambergs coordinates
+        val DEFAULT_LATITUDE = 49.891415011500726
+        val DEFAULT_LONGITUDE = 10.907930440129253
         init {
-            // initialize location with Bambergs coordinates
-            DEFAULT_PREFS.location.latitude = Location.convert("49.891415011500726")
-            DEFAULT_PREFS.location.longitude = Location.convert("10.907930440129253")
+            DEFAULT_PREFS.location.latitude = DEFAULT_LATITUDE
+            DEFAULT_PREFS.location.longitude = DEFAULT_LONGITUDE
         }
     }
 }

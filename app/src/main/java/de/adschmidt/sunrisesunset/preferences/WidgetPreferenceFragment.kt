@@ -1,4 +1,4 @@
-package de.adschmidt.sunrisesunset
+package de.adschmidt.sunrisesunset.preferences
 
 import WidgetUpdater
 import android.content.Context
@@ -9,10 +9,13 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Xml
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.*
 import androidx.preference.Preference.SummaryProvider
 import com.jaredrummler.android.colorpicker.ColorPreference
 import com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+import de.adschmidt.sunrisesunset.R
+import de.adschmidt.sunrisesunset.TAG
 import de.adschmidt.sunrisesunset.model.PreferenceDataType
 import de.adschmidt.sunrisesunset.model.PreferenceMeta
 import de.adschmidt.sunrisesunset.model.WidgetPreferences
@@ -25,6 +28,15 @@ import kotlin.reflect.full.findAnnotation
 class WidgetPreferenceFragment(
     private val keyPrefix: String
 ) : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private val locationPreferences = HashSet<LocationPreference>()
+
+    private val locationActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
+    { result ->
+        for(preference in locationPreferences) {
+            preference.handleActivityResult(result)
+        }
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val screen = preferenceManager.createPreferenceScreen(preferenceManager.context)
@@ -147,15 +159,17 @@ class WidgetPreferenceFragment(
         return preference
     }
 
+
+
     private fun buildLocationPreference(pref: PreferenceMeta, ctx: Context): Preference {
-        // TODO find/use/build location picker
-        val preference = EditTextPreference(ctx)
-        preference.summaryProvider = SummaryProvider<EditTextPreference> {
-            if(it.text == null || it.text.isBlank())
+        val preference = LocationPreference(ctx, locationActivityLauncher)
+        preference.summaryProvider = SummaryProvider<LocationPreference> {
+            if(it.address == null || it.address!!.isBlank())
                 getString("widgetPreferences.${pref.categoryKey}.${pref.key}.summary")
             else
-                it.text
+                it.address
         }
+        locationPreferences.add(preference)
         return preference
     }
 
