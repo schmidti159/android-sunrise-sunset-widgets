@@ -10,6 +10,30 @@
         android:layout_height="fill_parent"
         android:elevation="0dp" />
 
+    <TextView
+        android:id="@+id/clock_widget_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif-light"
+        android:paddingBottom="60dp"
+        android:text="05.04.2063"/>
+
+    <TextView
+        android:id="@+id/clock_widget_battery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="60dp"
+        android:text="69%"/>
+
     <TextClock
         android:id="@+id/clock_widget_clock"
         android:layout_width="wrap_content"
@@ -18,6 +42,8 @@
         android:layout_centerVertical="true"
         android:textColor="@color/white"
         android:textSize="40sp"
+        android:fontFamily="sans-serif-light"
         android:format24Hour="kk:mm:ss"
         android:format12Hour="kk:mm:ss" />
+
 </RelativeLayout>

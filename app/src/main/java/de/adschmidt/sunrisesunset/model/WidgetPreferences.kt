@@ -28,13 +28,20 @@ data class WidgetPreferences(
     @PreferenceMeta(key="60_clockColor", dataType=PreferenceDataType.COLOR, categoryKey = "10_colors")
     @ColorInt
     var clockColor: Int = 0xffffffff.toInt(),
+    @PreferenceMeta(key="70_dateColor", dataType=PreferenceDataType.COLOR, categoryKey = "10_colors")
+    @ColorInt
+    var dateColor: Int = 0xffffffff.toInt(),
     @PreferenceMeta(key="10_location", dataType=PreferenceDataType.LOCATION, categoryKey = "00_general")
     var location: Location,
     var locationAddress: String = "",
     @PreferenceMeta(key="10_showSeconds", dataType=PreferenceDataType.BOOLEAN, categoryKey = "20_clock")
     var showSeconds: Boolean = true,
     @PreferenceMeta(key="20_use24Hours", dataType=PreferenceDataType.BOOLEAN, categoryKey = "20_clock")
-    var use24Hours: Boolean = false
+    var use24Hours: Boolean = true,
+    @PreferenceMeta(key="30_showDate", dataType=PreferenceDataType.BOOLEAN, categoryKey = "20_clock")
+    var showDate: Boolean = true,
+    @PreferenceMeta(key="30_showBattery", dataType=PreferenceDataType.BOOLEAN, categoryKey = "20_clock")
+    var showBattery: Boolean = true
 ) {
     companion object {
         val DEFAULT_PREFS = WidgetPreferences(

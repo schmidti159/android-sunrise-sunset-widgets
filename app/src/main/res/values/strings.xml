@@ -47,12 +47,18 @@
     <string name="widgetPreferences.10_colors.50_markerColor.summary">Color of the marker showing the current time on the circle</string>
     <string name="widgetPreferences.10_colors.60_clockColor.title">Clock</string>
     <string name="widgetPreferences.10_colors.60_clockColor.summary">Color of the text showing the time</string>
+    <string name="widgetPreferences.10_colors.70_dateColor.title">Date</string>
+    <string name="widgetPreferences.10_colors.70_dateColor.summary">Color of the text showing the date</string>
 
     <string name="widgetPreferences.20_clock.title">Clock</string>
     <string name="widgetPreferences.20_clock.10_showSeconds.title">Show seconds</string>
     <string name="widgetPreferences.20_clock.10_showSeconds.summary">Show/hide the seconds on the clock</string>
     <string name="widgetPreferences.20_clock.20_use24Hours.title">24 hour format</string>
     <string name="widgetPreferences.20_clock.20_use24Hours.summary">Use the 24 hour format</string>
+    <string name="widgetPreferences.20_clock.30_showDate.title">Show date</string>
+    <string name="widgetPreferences.20_clock.30_showDate.summary">Show the current date above the clock</string>
+    <string name="widgetPreferences.20_clock.30_showBattery.title">Show battery status</string>
+    <string name="widgetPreferences.20_clock.30_showBattery.summary">Show the current battery status below the clock</string>
 
 
     <string name="title_activity_location_picker">Pick Location</string>
