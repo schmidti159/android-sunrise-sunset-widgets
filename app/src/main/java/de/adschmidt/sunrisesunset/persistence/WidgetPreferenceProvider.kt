@@ -21,7 +21,7 @@ object WidgetPreferenceProvider {
         return readWidgetIds(ctx)
     }
 
-    fun getPreferencs(widgetId: Int, ctx: Context) : WidgetPreferences? {
+    fun getPreferences(widgetId: Int, ctx: Context) : WidgetPreferences? {
         return readPreferences(widgetId, ctx)
     }
 

@@ -1,5 +1,6 @@
 package de.adschmidt.sunrisesunset
 
+import WidgetUpdater
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -32,7 +33,7 @@ class ClockWidgetProvider : AppWidgetProvider() {
         // When the user deletes the widget, delete the preference associated with it.
         for (appWidgetId in appWidgetIds) {
             Log.i(TAG, "Deleting widget $appWidgetId")
-            WidgetSizeProvider.delete(appWidgetId)
+            WidgetSizeProvider.delete(appWidgetId, context)
             WidgetPreferenceProvider.delete(appWidgetId, context)
         }
     }
@@ -50,15 +51,15 @@ class ClockWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onAppWidgetOptionsChanged(
-        context: Context?,
+        context: Context,
         appWidgetManager: AppWidgetManager?,
         appWidgetId: Int,
         newOptions: Bundle?
     ) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
         Log.i(TAG, "Updating the widget options for widget $appWidgetId")
-        WidgetSizeProvider.updateSize(appWidgetId, newOptions)
-        onUpdate(context!!, appWidgetManager!!, intArrayOf(appWidgetId))
+        WidgetSizeProvider.updateSize(appWidgetId, newOptions, context)
+        onUpdate(context, appWidgetManager!!, intArrayOf(appWidgetId))
     }
 }
 

@@ -77,10 +77,10 @@ object WidgetUpdater {
                 androidContext
             )
         }
-        val prefs = WidgetPreferenceProvider.getPreferencs(widgetId, androidContext)
+        val prefs = WidgetPreferenceProvider.getPreferences(widgetId, androidContext)
             ?: throw IllegalStateException("Preferences for $widgetId are still not initialized after updating them")
 
-        var size = WidgetSizeProvider.getSize(widgetId)
+        var size = WidgetSizeProvider.getSize(widgetId, androidContext)
         if(size == null) {
             Log.w(
                 TAG,
@@ -89,8 +89,8 @@ object WidgetUpdater {
             val widgetOptions = AppWidgetManager.getInstance(androidContext).getAppWidgetOptions(
                 widgetId
             )
-            WidgetSizeProvider.updateSize(widgetId, widgetOptions)
-            size = WidgetSizeProvider.getSize(widgetId)
+            WidgetSizeProvider.updateSize(widgetId, widgetOptions, androidContext)
+            size = WidgetSizeProvider.getSize(widgetId, androidContext)
                 ?: throw IllegalStateException("Sizes for $widgetId are still not initialized after updating them")
         }
 

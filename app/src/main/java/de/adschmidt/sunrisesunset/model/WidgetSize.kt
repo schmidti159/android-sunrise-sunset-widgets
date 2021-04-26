@@ -20,4 +20,8 @@ data class WidgetSize(
             resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
         return if (isPortrait) maxHeight else minHeight
     }
+
+    fun isValid(): Boolean {
+        return maxWidth > 0 && minWidth > 0 && maxHeight > 0 && minHeight > 0
+    }
 }

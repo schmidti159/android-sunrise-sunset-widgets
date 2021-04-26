@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         val widgetIds = WidgetPreferenceProvider.getWidgetIds(this)
             .toList().sorted()
         val widgetNames = widgetIds
-            .map { id -> Pair(id,WidgetPreferenceProvider.getPreferencs(id,this)?.customName) }
+            .map { id -> Pair(id,WidgetPreferenceProvider.getPreferences(id,this)?.customName) }
             .map { (id, name) ->
                 if(name != null && !name.isBlank()) name
                 else getString(R.string.no_custom_widget_name)+" [$id]"}
