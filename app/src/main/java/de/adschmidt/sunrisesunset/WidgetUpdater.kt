@@ -1,6 +1,12 @@
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.*
+import android.os.BatteryManager
+import android.text.TextPaint
+import android.text.format.DateFormat
+import android.text.style.TypefaceSpan
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
@@ -20,6 +26,7 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
+
 object WidgetUpdater {
     private val timeCalculator : TimeCalculator = TimeCalculator()
 
@@ -38,6 +45,8 @@ object WidgetUpdater {
 
         updateCircle(ctx, views)
         updateClock(ctx, views)
+        updateDate(ctx, views)
+        updateBattery(ctx, views)
 
         // Instruct the widget manager to update the widget
         val appWidgetManager = AppWidgetManager.getInstance(androidContext)
@@ -63,26 +72,34 @@ object WidgetUpdater {
             Log.w(TAG, "Preferences for $widgetId are not initialized. Using default preferences.")
             val initialPrefs = WidgetPreferences.DEFAULT_PREFS
             initialPrefs.widgetId = widgetId
-            WidgetPreferenceProvider.updatePreferences(WidgetPreferences.DEFAULT_PREFS, androidContext)
+            WidgetPreferenceProvider.updatePreferences(
+                WidgetPreferences.DEFAULT_PREFS,
+                androidContext
+            )
         }
         val prefs = WidgetPreferenceProvider.getPreferencs(widgetId, androidContext)
             ?: throw IllegalStateException("Preferences for $widgetId are still not initialized after updating them")
 
         var size = WidgetSizeProvider.getSize(widgetId)
         if(size == null) {
-            Log.w(TAG, "Sizes for $widgetId are not initialized. Reading sizes from the widgetManager.")
-            val widgetOptions = AppWidgetManager.getInstance(androidContext).getAppWidgetOptions(widgetId)
+            Log.w(
+                TAG,
+                "Sizes for $widgetId are not initialized. Reading sizes from the widgetManager."
+            )
+            val widgetOptions = AppWidgetManager.getInstance(androidContext).getAppWidgetOptions(
+                widgetId
+            )
             WidgetSizeProvider.updateSize(widgetId, widgetOptions)
             size = WidgetSizeProvider.getSize(widgetId)
                 ?: throw IllegalStateException("Sizes for $widgetId are still not initialized after updating them")
         }
 
-        val ctx = WidgetContext(prefs, size)
+        val ctx = WidgetContext(prefs, size, androidContext)
         // calculate the radius and padding
         val width = size.getWidth(androidContext.resources) * androidContext.resources.displayMetrics.density
         val height = size.getHeight(androidContext.resources) * androidContext.resources.displayMetrics.density
         val maxRadius = min(width, height) / 2
-        ctx.padding = min(10F, maxRadius / 10)
+        ctx.padding = min(10F, maxRadius / 20)
         ctx.radius = (min(width, height) / 2).toInt() - 4 * ctx.padding
         Log.i(
             TAG,
@@ -96,8 +113,17 @@ object WidgetUpdater {
 
     private fun updateCircle(ctx: WidgetContext, views: RemoteViews) {
         val diameter = (2 * (ctx.radius + ctx.padding))
-        val circleBox = RectF(ctx.padding, ctx.padding, diameter-ctx.padding, diameter-ctx.padding)
-        val bitmap = Bitmap.createBitmap(diameter.toInt(), diameter.toInt(), Bitmap.Config.ARGB_8888)
+        val circleBox = RectF(
+            ctx.padding,
+            ctx.padding,
+            diameter - ctx.padding,
+            diameter - ctx.padding
+        )
+        val bitmap = Bitmap.createBitmap(
+            diameter.toInt(),
+            diameter.toInt(),
+            Bitmap.Config.ARGB_8888
+        )
 
         val canvas = Canvas(bitmap)
 
@@ -120,7 +146,7 @@ object WidgetUpdater {
         val backgroundPaint = Paint(basePaint)
         setColor(backgroundPaint, ctx.prefs.backgroundColor)
         backgroundPaint.style = Paint.Style.FILL_AND_STROKE
-        canvas.drawCircle((diameter)/2, (diameter)/2, ctx.radius-strokeWidth, backgroundPaint)
+        canvas.drawCircle((diameter) / 2, (diameter) / 2, ctx.radius - strokeWidth, backgroundPaint)
 
         // the circle
         val sunriseDeg = toDeg(ctx.times.sunrise)
@@ -182,25 +208,95 @@ object WidgetUpdater {
         views.setCharSequence(R.id.clock_widget_clock, "setFormat24Hour", timeFormat)
         views.setCharSequence(R.id.clock_widget_clock, "setFormat12Hour", timeFormat)
 
-        val clockFontSize = getFontSize(ctx.radius, ctx.padding, timeFormat, ctx.prefs)
-        Log.i(TAG, "setting fontsize: $clockFontSize")
+        val currentTime = SimpleDateFormat(timeFormat).format(Date())
+        val clockFontSize = getFontSize(ctx, currentTime)
+        Log.i(TAG, "setting fontsize: $clockFontSize for clock")
         views.setFloat(R.id.clock_widget_clock, "setTextSize", clockFontSize)
 
         views.setInt(R.id.clock_widget_clock, "setTextColor", ctx.prefs.clockColor)
     }
 
-    private fun getFontSize(
-        radius: Float,
-        padding: Float,
-        timeFormat: String,
-        prefs: WidgetPreferences
-    ): Float {
-        val currentTime = SimpleDateFormat(timeFormat).format(Date())
-        val maxWidth = 2 * (radius)
+    private fun getFontSize(ctx: WidgetContext, sampleString: String): Float {
+        val maxWidth = 2 * (ctx.radius)
         // count chars (but : and . only as have width)
-        val charCount = currentTime.length - currentTime.filter { setOf(':','.').contains(it) }.count() * 0.5
-        Log.i(TAG, "maxWidth for Text: $maxWidth, per char: ${maxWidth / charCount}")
-        return ((maxWidth / charCount * 0.6)).toFloat()
+        val charCount = sampleString.length - sampleString.filter { setOf(':', '.', '/', '\\', ' ').contains(
+            it
+        ) }.count() * 0.5
+        Log.d(TAG, "maxWidth for Text: $maxWidth, per char: ${maxWidth / charCount}")
+        return ((maxWidth / charCount * 0.8)).toFloat()
+    }
+
+    private fun updateDate(ctx: WidgetContext, views: RemoteViews) {
+        if(!ctx.prefs.showDate) {
+            views.setCharSequence(R.id.clock_widget_date, "setText", "")
+            return
+        }
+        val dateFormat = DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEdMMM")
+        val date = SimpleDateFormat(dateFormat).format(Date())
+        Log.i(TAG, "current date: $date")
+        views.setCharSequence(R.id.clock_widget_date, "setText", date)
+        val fontSize = getFontSize(ctx, date) * 0.85F;
+        val bottomPadding = (ctx.radius / 1.1).toInt()
+        Log.i(
+            TAG,
+            "setting fontsize: $fontSize and bottomPadding $bottomPadding for date with value $date"
+        )
+        views.setFloat(R.id.clock_widget_date, "setTextSize", fontSize)
+        views.setViewPadding(R.id.clock_widget_date, 0, 0, 0, bottomPadding)
+        views.setInt(R.id.clock_widget_date, "setTextColor", ctx.prefs.dateColor)
+
+    }
+
+    private fun updateBattery(ctx: WidgetContext, views: RemoteViews) {
+        if(!ctx.prefs.showBattery) {
+            views.setCharSequence(R.id.clock_widget_battery, "setText", "")
+            return
+        }
+        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            ctx.androidCtx.registerReceiver(null, ifilter)
+        }
+        val batteryPct = batteryStatus?.let { intent ->
+            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            (level * 100 / scale.toFloat()).toInt()
+        }
+        val batteryString = "$batteryPct%"
+        views.setTextViewText(R.id.clock_widget_battery, batteryString)
+        val fontSize = getFontSize(ctx, batteryString.toString()) * 0.85F / 3;
+        val topPadding = (ctx.radius / 1).toInt()
+        Log.i(
+            TAG,
+            "setting fontsize: $fontSize and topPadding $topPadding for battery with value $batteryString"
+        )
+        views.setFloat(R.id.clock_widget_battery, "setTextSize", fontSize)
+        views.setViewPadding(R.id.clock_widget_battery, 0, topPadding, 0, 0)
+        views.setInt(R.id.clock_widget_battery, "setTextColor", ctx.prefs.dateColor)
+
+//      calendar: uf073, battery empty f244, quarter f243, half f242, three-quarters f241, full f240
+
+    }
+
+    class CustomTypefaceSpan(private val customTypeface: Typeface) : TypefaceSpan("") {
+        override fun updateDrawState(ds: TextPaint) {
+            applyCustomTypeFace(ds, customTypeface)
+        }
+
+        override fun updateMeasureState(paint: TextPaint) {
+            applyCustomTypeFace(paint, customTypeface)
+        }
+        private fun applyCustomTypeFace(paint: Paint, tf: Typeface) {
+            val oldStyle: Int
+            val oldTypeFace = paint.typeface
+            oldStyle = oldTypeFace.style
+            val fake = oldStyle and tf.style.inv()
+            if (fake and Typeface.BOLD != 0) {
+                paint.isFakeBoldText = true
+            }
+            if (fake and Typeface.ITALIC != 0) {
+                paint.textSkewX = -0.25f
+            }
+            paint.typeface = tf
+        }
     }
 
 }
